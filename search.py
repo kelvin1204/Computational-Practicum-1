@@ -92,7 +92,7 @@ def depthFirstSearch(problem: SearchProblem):
                 if successor not in visited:
                     stack.push((successor, actions + [action]))
 
-    return []  # geen oplossing gevonden
+    return []  # No solution found
 
 def breadthFirstSearch(problem: SearchProblem):
     from util import Queue
