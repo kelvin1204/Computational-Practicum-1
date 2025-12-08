@@ -95,14 +95,53 @@ def depthFirstSearch(problem: SearchProblem):
     return []  # geen oplossing gevonden
 
 def breadthFirstSearch(problem: SearchProblem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import Queue
+
+    start = problem.getStartState()
+    queue = Queue()
+    queue.push((start, []))
+    visited = set()
+
+    while not queue.isEmpty():
+        state, actions = queue.pop()
+
+        if problem.isGoalState(state):
+            return actions
+        
+        if state not in visited:
+            visited.add(state)
+            for successor, action, stepCost in problem.getSuccessors(state):
+                if successor not in visited:
+                    queue.push((successor, actions + [action]))
 
 def uniformCostSearch(problem: SearchProblem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue
+
+    start = problem.getStartState()
+    pQueue = PriorityQueue()
+    pQueue.push((start, []), 0)
+    visited = {}
+
+    while not pQueue.isEmpty():
+        state, actions = pQueue.pop()
+        current_cost = problem.getCostOfActions(actions)
+
+        if problem.isGoalState(state):
+            return actions
+        
+        if state in visited and current_cost > visited[state]:
+            continue
+
+        visited[state] = current_cost
+
+        for successor, action, stepCost in problem.getSuccessors(state):
+            new_actions = actions + [action]
+            new_cost = problem.getCostOfActions(new_actions)
+            pQueue.push((successor, new_actions), new_cost)
+    
+    return []
+
+
 
 def nullHeuristic(state, problem=None):
     """
