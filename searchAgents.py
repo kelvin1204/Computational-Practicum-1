@@ -291,22 +291,25 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-        "*** YOUR CODE HERE ***"
+
+        self.startingVisitedCorners = (False, False, False, False)
+        self.start = (self.startingPosition, self.startingVisitedCorners) # All we need to add to the state is which corners are visited.
+        self.goal = (True, True, True, True) # And the goal is now to have all corners visited, instead of one position.
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.start
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        isGoal = state[1] == self.goal
+
+        return isGoal
 
     def getSuccessors(self, state: Any):
         """
@@ -321,14 +324,23 @@ class CornersProblem(search.SearchProblem):
 
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            # Add a successor state to the successor list if the action is legal
-            # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
+            x,y = state[0]
+            visitedCorners = state[1]
 
-            "*** YOUR CODE HERE ***"
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextPos = (nextx, nexty)
+                nextVisitedCorners = list(visitedCorners)
+                try:
+                    index = self.corners.index(nextPos) # Check if we are on a corner.
+                    nextVisitedCorners[index] = True    # If so, set that corner index to True.
+                except ValueError:
+                    pass                                # If not, just continue.
+                nextVisitedCorners = tuple(nextVisitedCorners)
+
+                cost = 1 # Since there is no costFn in the CornersProblem, this is just 1
+                successors.append( ( (nextPos, nextVisitedCorners), action, cost) )
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
