@@ -167,7 +167,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
         if problem.isGoalState(state):
             return actions
         
-        if state in visited and current_cost > visited[state]:
+        if state in visited and current_cost >= visited[state]:
             continue
 
         visited[state] = current_cost
