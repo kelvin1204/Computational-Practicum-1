@@ -75,69 +75,83 @@ def tinyMazeSearch(problem):
 def depthFirstSearch(problem: SearchProblem):
     from util import Stack
 
-    start = problem.getStartState()
-    stack = Stack()
-    stack.push((start, []))
     visited = set()
+    stack = Stack()  #LIFO, last in first out
+    stack.push((problem.getStartState(), []))
+
 
     while not stack.isEmpty():
-        state, actions = stack.pop()
+        current = stack.pop() #Pop the last in
+        node = current[0]
+        path = current[1]
 
-        if problem.isGoalState(state):
-            return actions
+        if problem.isGoalState(node): #If goal is found, return path
+            return path
 
-        if state not in visited:
-            visited.add(state)
-            for successor, action, stepCost in problem.getSuccessors(state):
+        if node not in visited:
+
+            visited.add(node)
+
+            #Add successors to stack if they are not visited
+            for successor, action, stepCost in problem.getSuccessors(node): 
                 if successor not in visited:
-                    stack.push((successor, actions + [action]))
+                    stack.push((successor, path + [action])) 
 
     return []  # No solution found
 
 def breadthFirstSearch(problem: SearchProblem):
     from util import Queue
 
-    start = problem.getStartState()
-    queue = Queue()
-    queue.push((start, []))
     visited = set()
+    queue = Queue()  #FIFO, first in first out
+    queue.push((problem.getStartState(), []))
+
 
     while not queue.isEmpty():
-        state, actions = queue.pop()
+        current = queue.pop() #Pop the first in (layer-by-layer)
+        node = current[0]
+        path = current[1]
 
-        if problem.isGoalState(state):
-            return actions
-        
-        if state not in visited:
-            visited.add(state)
-            for successor, action, stepCost in problem.getSuccessors(state):
+        if problem.isGoalState(node): #If goal is found, return path
+            return path
+
+        if node not in visited:
+
+            visited.add(node)
+
+            #Add successors to queue if they are not visited
+            for successor, action, stepCost in problem.getSuccessors(node): 
                 if successor not in visited:
-                    queue.push((successor, actions + [action]))
+                    queue.push((successor, path + [action])) 
+
+    return []  # No solution found
 
 def uniformCostSearch(problem: SearchProblem):
     from util import PriorityQueue
 
-    start = problem.getStartState()
-    pQueue = PriorityQueue()
-    pQueue.push((start, []), 0)
     visited = {}
+    pQueue = PriorityQueue() #Take the lowest cost first
+    pQueue.push((problem.getStartState(), []), 0)
+
 
     while not pQueue.isEmpty():
-        state, actions = pQueue.pop()
-        current_cost = problem.getCostOfActions(actions)
+        current = pQueue.pop() #Pop the first in (layer-by-layer)
+        node = current[0]
+        path = current[1]
+        current_cost = problem.getCostOfActions(path)
 
-        if problem.isGoalState(state):
-            return actions
+        if problem.isGoalState(node): #If goal is found, return path
+            return path
         
-        if state in visited and current_cost > visited[state]:
+        if node in visited and current_cost >= visited[node]: #Check if there exists a lower cost already
             continue
 
-        visited[state] = current_cost
+        visited[node] = current_cost #update cost in visited
 
-        for successor, action, stepCost in problem.getSuccessors(state):
-            new_actions = actions + [action]
-            new_cost = problem.getCostOfActions(new_actions)
-            pQueue.push((successor, new_actions), new_cost)
+        #Add successors to pQueue with new cost
+        for successor, action, stepCost in problem.getSuccessors(node):
+            new_actions = path + [action] 
+            pQueue.push((successor, new_actions), current_cost + stepCost)
     
     return []
 
@@ -155,27 +169,28 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
 
     from util import PriorityQueue
 
-    start = problem.getStartState()
-    pQueue = PriorityQueue()
-    pQueue.push((start, []), heuristic(start, problem))
     visited = {}
+    pQueue = PriorityQueue() #Take the lowest cost first
+    pQueue.push((problem.getStartState(), []), heuristic(problem.getStartState(), problem))
 
     while not pQueue.isEmpty():
-        state, actions = pQueue.pop()
-        current_cost = problem.getCostOfActions(actions)
+        current = pQueue.pop() #Pop the first in (layer-by-layer)
+        node = current[0]
+        path = current[1]
+        current_cost = problem.getCostOfActions(path)
 
-        if problem.isGoalState(state):
-            return actions
+        if problem.isGoalState(node): #If goal is found, return path
+            return path
         
-        if state in visited and current_cost >= visited[state]:
+        if node in visited and current_cost >= visited[node]: #Check if there exists a lower cost already
             continue
 
-        visited[state] = current_cost
+        visited[node] = current_cost #update cost in visited
 
-        for successor, action, stepCost in problem.getSuccessors(state):
-            new_actions = actions + [action]
-            new_cost = problem.getCostOfActions(new_actions) + heuristic(successor, problem)
-            pQueue.push((successor, new_actions), new_cost)
+        #Add successors to pQueue with new cost and heuristic added
+        for successor, action, stepCost in problem.getSuccessors(node):
+            new_actions = path + [action]
+            pQueue.push((successor, new_actions), current_cost + stepCost + heuristic(successor, problem))
     
     return []
 
